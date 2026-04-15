@@ -1,0 +1,39 @@
+# Root .gitignore for SummarizeIt
+
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+venv/
+.venv/
+env/
+
+# ── Environment / Secrets ─────────────────────────────
+backend/.env
+backend/.env.template
+.env
+*.env
+
+# ── Node / Frontend ───────────────────────────────────
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+
+# ── macOS ─────────────────────────────────────────────
+.DS_Store
+
+# ── Editor ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Log / Temp ────────────────────────────────────────
+*.log
+tmp/
+temp/
