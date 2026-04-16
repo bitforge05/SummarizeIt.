@@ -37,3 +37,4 @@ frontend/dist/
 *.log
 tmp/
 temp/
+backend/data.db

@@ -9,3 +9,7 @@ python-multipart==0.0.26
 groq==1.0.0
 sentence-transformers==5.1.2
 pypdf==5.1.0
+duckduckgo-search==6.2.13
+certifi
+passlib[bcrypt]==1.7.4
+PyJWT==2.8.0
