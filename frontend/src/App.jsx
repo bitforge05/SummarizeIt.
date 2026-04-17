@@ -6,16 +6,12 @@ import {
 } from 'lucide-react';
 import './index.css';
 
-// ── Constants ──────────────────────────────────────────────────────────────
-const API_BASE   = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const LS_API_KEY = 'summarize_it_api_key';
 const LS_TOKEN   = 'summarize_it_auth_token';
 const LS_USER    = 'summarize_it_username';
 const SCREEN     = { LANDING: 'landing', APP: 'app' };
 
-// ════════════════════════════════════════════════════════════════════════════
-// Root
-// ════════════════════════════════════════════════════════════════════════════
 export default function App() {
   const [screen, setScreen] = useState(SCREEN.LANDING);
   const [user,   setUser]   = useState(null);       // { username, token }
@@ -81,9 +77,7 @@ export default function App() {
   );
 }
 
-// ════════════════════════════════════════════════════════════════════════════
 // Landing Screen  (API key + Login/Register)
-// ════════════════════════════════════════════════════════════════════════════
 function LandingScreen({ user, apiKey: savedKey, onSaveKey, onAuthSuccess, onEnterApp, onSignOut }) {
   const [key,       setKey]       = useState(savedKey || '');
   const [showKey,   setShowKey]   = useState(false);
@@ -272,9 +266,7 @@ function LandingScreen({ user, apiKey: savedKey, onSaveKey, onAuthSuccess, onEnt
 const UserIconWrap = ({ children }) => <>{children}</>;
 const LockIconWrap = ({ children }) => <>{children}</>;
 
-// ════════════════════════════════════════════════════════════════════════════
 // Session helpers (Backend REST API)
-// ════════════════════════════════════════════════════════════════════════════
 
 async function saveSession(userToken, session) {
   try {
@@ -321,11 +313,8 @@ function newSessionId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
 // Main App
-// ════════════════════════════════════════════════════════════════════════════
 function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
-  // ── Core state ────────────────────────────────────────────────────────────
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processStatus, setProcessStatus] = useState('');
@@ -335,16 +324,13 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
   const [input,     setInput]       = useState('');
   const [isThinking, setIsThinking] = useState(false);
 
-  // ── Web search ────────────────────────────────────────────────────────────
   const [webSearch, setWebSearch] = useState(false);
 
-  // ── Sessions / history ────────────────────────────────────────────────────
   const [sessionId,  setSessionId]  = useState(() => newSessionId());
   const [sessions,   setSessions]   = useState([]);
   const [savingMsg,  setSavingMsg]  = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ── Inline key edit ───────────────────────────────────────────────────────
   const [showKeyEdit, setShowKeyEdit] = useState(false);
   const [newKey,      setNewKey]      = useState(apiKey);
   const [showNewKey,  setShowNewKey]  = useState(false);
@@ -365,7 +351,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
     'Authorization': `Bearer ${user.token}`
   }), [apiKey, user.token]);
 
-  // ── Check if auth failed ──────────────────────────────────────────────────
   const handleApiError = (errMessage) => {
     if (errMessage.includes('Authentication required') || errMessage.includes('expired') || errMessage.includes('Invalid session')) {
       alert("Session expired. Please log in again.");
@@ -375,7 +360,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
     return false;
   };
 
-  // ── Auto-save to Backend whenever messages or summary change ────────────
   useEffect(() => {
     if (!user?.token || (!summary && messages.length === 0)) return;
     setSavingMsg('Saving…');
@@ -396,7 +380,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, messages]);
 
-  // ── Load a past session ───────────────────────────────────────────────────
   const restoreSession = (s) => {
     setSessionId(s.id);
     setSummary(s.summary || '');
@@ -406,7 +389,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
     setSidebarOpen(false);
   };
 
-  // ── New session ───────────────────────────────────────────────────────────
   const newSession = () => {
     setSessionId(newSessionId());
     setUploadedFile(null);
@@ -417,7 +399,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
     setSidebarOpen(false);
   };
 
-  // ── Delete session ────────────────────────────────────────────────────────
   const handleDeleteSession = async (e, s) => {
     e.stopPropagation();
     if (!user?.token) return;
@@ -427,7 +408,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
 
   const reset = () => { setSummary(''); setMessages([]); setIsReady(false); };
 
-  // ── Process upload ────────────────────────────────────────────────────────
   const handleProcess = async () => {
     if (!uploadedFile) { alert('Please select a .txt or .pdf file.'); return; }
     reset();
@@ -466,7 +446,6 @@ function MainApp({ user, apiKey, onChangeKey, onSignOut, onGoLanding }) {
     }
   };
 
-  // ── Chat ──────────────────────────────────────────────────────────────────
   const handleSend = async () => {
     const q = input.trim();
     if (!q || isThinking) return;
