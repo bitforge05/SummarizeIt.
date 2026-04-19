@@ -16,9 +16,15 @@ try:
 except Exception:
     pass
 
-print("[Embeddings] Loading local model …")
-_embed_model = SentenceTransformer("all-MiniLM-L6-v2")
-print("[Embeddings] Ready.\n")
+_embed_model = None
+
+def _get_embed_model():
+    global _embed_model
+    if _embed_model is None:
+        print("[Embeddings] Loading local model …")
+        _embed_model = SentenceTransformer("all-MiniLM-L6-v2")
+        print("[Embeddings] Ready.")
+    return _embed_model
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
@@ -109,7 +115,7 @@ class ContentRAG:
         self.chunks = chunk_text(text)
         if not self.chunks:
             return False, "Document has no usable text."
-        embeddings = np.array(_embed_model.encode(self.chunks)).astype("float32")
+        embeddings = np.array(_get_embed_model().encode(self.chunks)).astype("float32")
         self.index = faiss.IndexFlatL2(embeddings.shape[1])
         self.index.add(embeddings)
         return True, f"Processed {len(self.chunks)} chunks from '{self.filename}'."
@@ -154,7 +160,7 @@ class ContentRAG:
     def query(self, question: str, api_key: str, web_search_enabled: bool = False, history: list = None) -> str:
         doc_context = ""
         if self.index:
-            q_emb = np.array(_embed_model.encode([question])).astype("float32")
+            q_emb = np.array(_get_embed_model().encode([question])).astype("float32")
             _, indices = self.index.search(q_emb, k=4)
             doc_context = "\n\n".join(
                 self.chunks[i] for i in indices[0] if i < len(self.chunks)
