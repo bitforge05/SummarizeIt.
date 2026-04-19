@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import faiss
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from pypdf import PdfReader
 from groq import Groq
 
@@ -21,10 +21,15 @@ _embed_model = None
 def _get_embed_model():
     global _embed_model
     if _embed_model is None:
-        print("[Embeddings] Loading local model …")
-        _embed_model = SentenceTransformer("all-MiniLM-L6-v2")
+        print("[Embeddings] Loading ONNX model (fastembed) …")
+        _embed_model = TextEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
         print("[Embeddings] Ready.")
     return _embed_model
+
+
+def _encode(texts: list) -> np.ndarray:
+    """Encode a list of strings → float32 numpy array using fastembed."""
+    return np.array(list(_get_embed_model().embed(texts))).astype("float32")
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
@@ -115,7 +120,7 @@ class ContentRAG:
         self.chunks = chunk_text(text)
         if not self.chunks:
             return False, "Document has no usable text."
-        embeddings = np.array(_get_embed_model().encode(self.chunks)).astype("float32")
+        embeddings = _encode(self.chunks)
         self.index = faiss.IndexFlatL2(embeddings.shape[1])
         self.index.add(embeddings)
         return True, f"Processed {len(self.chunks)} chunks from '{self.filename}'."
@@ -160,7 +165,7 @@ class ContentRAG:
     def query(self, question: str, api_key: str, web_search_enabled: bool = False, history: list = None) -> str:
         doc_context = ""
         if self.index:
-            q_emb = np.array(_get_embed_model().encode([question])).astype("float32")
+            q_emb = _encode([question])
             _, indices = self.index.search(q_emb, k=4)
             doc_context = "\n\n".join(
                 self.chunks[i] for i in indices[0] if i < len(self.chunks)

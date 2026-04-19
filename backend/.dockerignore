@@ -1,0 +1,41 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files (never bake secrets into the image)
+.env
+.env.template
+*.env
+
+# Database (ephemeral on Railway anyway)
+data.db
+*.db
+
+# Dev / editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docs / scripts not needed at runtime
+README.md
+Procfile
+start.sh
+runtime.txt
+railway.toml
